@@ -432,6 +432,7 @@ if __name__ == "__main__":
         # en_toks = en2fr.tokenize('Hello world!')
         # en_bpe = en2fr.apply_bpe(en_toks)
         en_bin = [329, 14044, 682, 812, 2]
+        en_bin = [9938, 5384, 9328,  812, 3619,   53,  181, 3829,  171,    2]
         input_ids = torch.tensor([en_bin]).type(torch.IntTensor).cuda()  
         decoder_input_ids = torch.IntTensor([[2]]).cuda()
         decoder_input_ids = decoder_input_ids.repeat((input_ids.shape[0], 1))
