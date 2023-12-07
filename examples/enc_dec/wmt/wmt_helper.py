@@ -1,4 +1,7 @@
 '''
+Get hidden representation for a fairseq model using pytorch hooks
+https://gist.github.com/soldni/b70b2401fd48767c4259cd8e3a0936b0
+
 download WMT model from 
 https://github.com/facebookresearch/fairseq/blob/main/examples/translation/README.md
 https://dl.fbaipublicfiles.com/fairseq/models/wmt14.en-fr.joined-dict.transformer.tar.bz2
