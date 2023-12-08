@@ -10,10 +10,15 @@ import torch
 from fairseq.models.transformer import TransformerModel
 
 en_bin = torch.tensor([329, 14044, 682, 812, 2])
-model = TransformerModel.from_pretrained("<your local path>/wmt14.en-fr.joined-dict.transformer", checkpoint_file="model.pt", bpe=None)
+model = TransformerModel.from_pretrained("/home/yuting_wang6/Downloads/wmt14.en-fr.joined-dict.transformer", checkpoint_file="model.pt", bpe=None)
+# model = model.cuda()
+# to see whole model architecture
+# print(model)
 model.eval()
 # initial run
-model.generate(tokenized_sentences=en_bin, beam=1, prefix_allowed_tokens_fn=None, verbose=True)
+# model.generate(tokenized_sentences=en_bin, beam=1, prefix_allowed_tokens_fn=None, verbose=True)
+
+intermediate_data = []
 
 class GetIntermediateData:
     def __init__(self, layer):
@@ -21,14 +26,11 @@ class GetIntermediateData:
         self.hook = layer.register_forward_hook(self._hook_fn)
 
     def _hook_fn(self, net_self, input, output):
-        # print layer input
-        # self.layer_content.append(input)
-        # print layer output
-        self.layer_content.append(output)
+        intermediate_data.append(output)
 
     def get(self):
         return self.layer_content
-        del self.layer_content[:]
+        # del self.layer_content[:]
 
     def remove_hook(self):
         self.hook.remove()
@@ -46,11 +48,11 @@ hook_wrapper.append(GetIntermediateData(model.models[0].encoder.layers[num_layer
 hook_wrapper.append(GetIntermediateData(model.models[0].encoder.layers[num_layer].final_layer_norm))
 
 layer_names = [
-    "encoder.embed_tokens",
-    "encoder.embed_positions",
-    "encoder.layers[num_layer].self_attn",
-    "encoder.layers[num_layer].self_attn_layer_norm",
-    "encoder.layers[num_layer].final_layer_norm"
+    f"{module}.embed_tokens",
+    f"{module}.embed_positions",
+    f"{module}.layers[{num_layer}].self_attn",
+    f"{module}.layers[{num_layer}].self_attn_layer_norm",
+    f"{module}.layers[{num_layer}].final_layer_norm"
 ]
 assert len(layer_names) == len(hook_wrapper)
 # this is the call to the network 
@@ -60,6 +62,5 @@ model.generate(en_bin, beam=1, verbose=True)
 for i in range(len(layer_names)):
     print("----------------")
     print(layer_names[i])
-    print(hook_wrapper[i].get())
-    print("----------------")
-    
+    print(intermediate_data[i])
+    print(intermediate_data[i].shape)
